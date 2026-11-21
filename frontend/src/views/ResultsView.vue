@@ -8,7 +8,16 @@
 
     <div class="results-grid" v-if="recommendedSongs.length > 0">
       <div v-for="song in recommendedSongs" :key="song.track_id" class="song-item">
-        <SongTrial :song="song" />
+        <div class="cover">
+          <SongTrial :song="song" />
+          <button
+            v-if="auth.user"
+            class="favorite-btn"
+            :class="{ active: favoriteIds.includes(song.track_id) }"
+            :title="favoriteIds.includes(song.track_id) ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'"
+            @click="toggleFavorite(song.track_id)"
+          >♥</button>
+        </div>
         <div class="song-info">
           <p class="song-title">{{ song.track_name }}</p>
           <p class="song-artist">{{ song.artists }}</p>
@@ -36,17 +45,53 @@
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import SongTrial from "../components/SongTrial.vue"
+import { BASE_URL } from "../utils/Config"
+import { auth, authHeaders } from "../services/Auth"
 
 const router = useRouter()
 const recommendedSongs = ref([])
+const favoriteIds = ref([])
+
+async function toggleFavorite(trackId) {
+  if (!auth.token) return
+  const isFavorite = favoriteIds.value.includes(trackId)
+  const response = await fetch(
+    `${BASE_URL}/auth/favorites${isFavorite ? `/${encodeURIComponent(trackId)}` : ""}`,
+    {
+      method: isFavorite ? "DELETE" : "POST",
+      headers: {
+        ...authHeaders(),
+        "Content-Type": "application/json"
+      },
+      body: isFavorite ? undefined : JSON.stringify({ track_id: trackId })
+    }
+  )
+  if (response.ok) {
+    favoriteIds.value = isFavorite
+      ? favoriteIds.value.filter(id => id !== trackId)
+      : [...favoriteIds.value, trackId]
+  }
+}
+
+async function loadFavorites() {
+  if (!auth.token) {
+    favoriteIds.value = []
+    return
+  }
+  const response = await fetch(`${BASE_URL}/auth/favorites`, { headers: authHeaders() })
+  if (response.ok) {
+    const songs = await response.json()
+    favoriteIds.value = songs.map(song => song.track_id)
+  }
+}
 
 onMounted(() => {
-
   if (history.state && history.state.recommendations) {
     recommendedSongs.value = history.state.recommendations
   } else {
     router.push('/')
   }
+  loadFavorites()
 })
 </script>
 
@@ -116,6 +161,31 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.cover {
+  position: relative;
+  width: 100%;
+}
+
+.favorite-btn {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #222;
+  border-radius: 50%;
+  background: #555;
+  color: #ddd;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.favorite-btn.active {
+  background: #1DB954;
+  color: white;
 }
 
 .song-info {
