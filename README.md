@@ -14,7 +14,7 @@ System rekomendacji utworów muzycznych
 
 ## Opis projektu
 
-Projekt jest systemem rekomendacji utworów muzycznych wykorzystującym algorytmy uczenia maszynowego. Analizuje cechy utworów, takie jak gatunek, tempo i nastrój, aby proponować użytkownikom spersonalizowane rekomendacje. Aplikacja składa się z backendu w Pythonie oraz interfejsu użytkownika we Vue.js.
+SongRecommender jest systemem rekomendacji utworów muzycznych wykorzystującym algorytmy uczenia maszynowego. Analizuje cechy utworów, takie jak gatunek, tempo i nastrój, aby proponować użytkownikom spersonalizowane rekomendacje. Aplikacja składa się z backendu w Pythonie oraz interfejsu użytkownika we Vue.js.
 
 ## Uruchomienie projektu
 
