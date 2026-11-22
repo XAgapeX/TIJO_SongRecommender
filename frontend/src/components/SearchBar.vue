@@ -15,7 +15,6 @@
       </div>
     </div>
 
-    <!-- Dropdown z wynikami -->
     <ul v-if="results.length > 0 && showDropdown" class="results-list">
       <li 
         v-for="song in results" 
@@ -66,7 +65,6 @@ const handleEnter = () => {
   }
 }
 
-// Zamykanie dropdownu po kliknięciu poza nim
 const closeDropdown = (e) => {
   if (!e.target.closest('.search-container')) {
     showDropdown.value = false
